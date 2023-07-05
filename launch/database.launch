@@ -1,8 +1,8 @@
 <launch>
   <node pkg="task_database" type="database.py" name="database" output="screen">
-    <param name="host" value="localhost" />
+    <param name="host" value="database-1-instance-1.cowm5sbfnfzf.eu-central-1.rds.amazonaws.com" />
     <param name="port" value="5432" />
-    <param name="database" value="rico" />
+    <param name="database" value="postgres" />
     <param name="user" value="postgres" />
     <param name="password" value="postgres" />
   </node>
