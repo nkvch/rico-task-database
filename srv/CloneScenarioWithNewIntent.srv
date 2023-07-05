@@ -1,0 +1,5 @@
+int64 exist_scenario_id
+string new_intent
+string[] additional_params
+---
+int64 scenario_id

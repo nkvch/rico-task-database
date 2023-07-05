@@ -1,0 +1,4 @@
+int64 scenario_id
+bool only_dialogflow_params
+---
+string[] params

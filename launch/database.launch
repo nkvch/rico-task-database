@@ -1,0 +1,9 @@
+<launch>
+  <node pkg="task_database" type="database.py" name="database" output="screen">
+    <param name="host" value="localhost" />
+    <param name="port" value="5432" />
+    <param name="database" value="rico" />
+    <param name="user" value="postgres" />
+    <param name="password" value="postgres" />
+  </node>
+</launch>
