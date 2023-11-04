@@ -15,22 +15,25 @@ def get_connection_and_cursor(host, port, database, user, password):
         id     serial
             constraint intents_pk
                 primary key,
-        intent varchar
+        name varchar,
+        description varchar
     );
 
     alter table intents
-        owner to postgres;
+        owner to rico;
 
     create table if not exists tasks
     (
         id   serial
             constraint tasks_pk
                 primary key,
-        name varchar
+        name varchar,
+        display_name varchar,
+        description varchar
     );
 
     alter table tasks
-        owner to postgres;
+        owner to rico;
 
     create table if not exists scenarios
     (
@@ -47,7 +50,7 @@ def get_connection_and_cursor(host, port, database, user, password):
     );
 
     alter table scenarios
-        owner to postgres;
+        owner to rico;
 
     create table if not exists scenario_params
     (
@@ -57,12 +60,11 @@ def get_connection_and_cursor(host, port, database, user, password):
         scenario integer not null
             constraint scenario_params_intents_tasks_null_fk
                 references scenarios,
-        param    varchar,
-        dialogflow_param boolean not null
+        param    varchar
     );
 
     alter table scenario_params
-        owner to postgres;
+        owner to rico;
 
     create table if not exists scenario_inputs
     (
@@ -74,14 +76,14 @@ def get_connection_and_cursor(host, port, database, user, password):
                 references scenarios,
         intent   integer
             constraint scenario_inputs_intents_null_fk
-                references intents,
-        alias    varchar not null
+                references intents
     );
 
     alter table scenario_inputs
-        owner to postgres;
+        owner to rico;
     """)
 
     db_conn.commit()
 
     return db_conn, cursor
+

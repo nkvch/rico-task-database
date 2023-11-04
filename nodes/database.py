@@ -8,6 +8,7 @@ import tiago_msgs.msg
 from task_database.msg import Scenario, TaskSpec, ScenarioInput
 from task_database.srv import GetScenarioForIntent, GetScenarioForIntentResponse, GetTaskSpecForIntent, GetTaskSpecForIntentResponse, GetAllTaskNames, GetAllTaskNamesResponse, GetParamsForScenario, GetParamsForScenarioResponse, GetScenarioInputs, GetScenarioInputsResponse, CloneScenarioWithNewIntent, CloneScenarioWithNewIntentResponse, AddParamsForScenario, AddParamsForScenarioResponse
 from connection import get_connection_and_cursor
+from default_data import insert_default_data
 from scenarios_interface import ScenariosInterface
 from conversation_msgs.msg import ScenarioIntentWithParams
 from conversation_msgs.srv import GetScenariosIntentsWithParams, GetScenariosIntentsWithParamsResponse
@@ -31,7 +32,7 @@ def get_params_for_scenario(si):
 
 
 def get_scenario_inputs(si):
-    return lambda req: GetScenarioInputsResponse(list(map(lambda tupl: ScenarioInput(tupl[0], tupl[1], tupl[2]), si.get_scenario_inputs(req.scenario_id))))
+    return lambda req: GetScenarioInputsResponse(list(map(lambda tupl: ScenarioInput(tupl[0], tupl[1]), si.get_scenario_inputs(req.scenario_id))))
 
 
 def main():
@@ -45,6 +46,9 @@ def main():
 
     db_conn, cursor = get_connection_and_cursor(
         host, port, database, user, password)
+    
+    insert_default_data(cursor, db_conn)
+
     scenarios_interface = ScenariosInterface(db_conn=db_conn, cursor=cursor)
 
     def clone_scenario_with_new_intent(req):

@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: rico_postgres_container
+    environment:
+      POSTGRES_USER: rico
+      POSTGRES_PASSWORD: ricorico
+      POSTGRES_DB: rico
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

@@ -11,7 +11,7 @@ class ScenariosInterface:
         print 'got new id', intent_id
 
         self.cursor.execute("""
-            insert into intents(id, intent) values (%s, '%s')
+            insert into intents(id, name) values (%s, '%s')
         """ % (intent_id, intent_name))
 
         print 'creted new intent', intent_id
@@ -51,29 +51,54 @@ class ScenariosInterface:
         return list(map(lambda tup: tup[0], data))
 
     def add_params_for_scenario(self, scenario_id, params):
-        params_insert_statement = '\n'.join(list(map(
-            lambda param: "insert into scenario_params(id, scenario, param) values (default, %s, \'%s\');" % (scenario_id, param),
-            params,
-        )))
+        # params_insert_statement = '\n'.join(list(map(
+        #     lambda param: "insert into scenario_params(id, scenario, param) values (default, %s, \'%s\');" % (scenario_id, param),
+        #     params,
+        # )))
 
-        self.cursor.execute(params_insert_statement)
+
+        # self.cursor.execute(params_insert_statement)
+
+        for param in params:
+            self.cursor.execute('select nextval(\'scenario_params_id_seq\')')
+            param_id_tuple = self.cursor.fetchone()
+            param_id = param_id_tuple[0]
+
+            self.cursor.execute("""
+                insert into scenario_params(id, scenario, param)
+                values (%s, %s, \'%s\')
+            """ % (param_id, scenario_id, param))
+
         self.save_changes()
     
     def add_inputs_for_scenario(self, scenario_id, inputs):
-        inputs_insert_statement = '\n'.join(list(map(
-            lambda input_tuple: """
-                insert into scenario_inputs(id, scenario, intent, alias)
-                values (
-                    default,
-                    %s,
-                    %s,
-                    \'%s\'
-                );
-            """ % (scenario_id, input_tuple[0], input_tuple[1]),
-            inputs,
-        )))
+        # inputs_insert_statement = '\n'.join(list(map(
+        #     lambda input_tuple: """
+        #         insert into scenario_inputs(id, scenario, intent)
+        #         values (
+        #             default,
+        #             %s,
+        #             %s
+        #         );
+        #     """ % (scenario_id, input_tuple[0]),
+        #     inputs,
+        # )))
 
-        self.cursor.execute(inputs_insert_statement)
+        # self.cursor.execute(inputs_insert_statement)
+
+        for input_tuple in inputs:
+            self.cursor.execute('select nextval(\'scenario_inputs_id_seq\')')
+            input_id_tuple = self.cursor.fetchone()
+            input_id = input_id_tuple[0]
+
+            self.cursor.execute("""
+                insert into scenario_inputs(id, scenario, intent)
+                values (
+                    %s,
+                    %s,
+                    %s
+                )
+            """ % (input_id, scenario_id, input_tuple[0]))
 
     def save_changes(self):
         self.db_conn.commit()
@@ -105,7 +130,7 @@ class ScenariosInterface:
 
     def get_scenario_inputs(self, scenario_id):
         self.cursor.execute("""
-            select scenario_inputs.alias, i.name, i.description from scenario_inputs
+            select i.name, i.description from scenario_inputs
             join intents i on i.id = scenario_inputs.intent
             where scenario_inputs.scenario=%s""" % scenario_id)
 
@@ -137,13 +162,13 @@ class ScenariosInterface:
         self.cursor.execute("""
             insert into scenarios(id, intent, task, priority) values (
                 %s,
-                %s, 
-                (select task from scenarios where id=%s), 
+                %s,
+                (select task from scenarios where id=%s),
                 (select priority from scenarios where id=%s)
             )
         """ % (scenario_id, intent_id, exist_scenario_id, exist_scenario_id))
 
-        self.cursor.execute('select intent, alias from scenario_inputs where scenario = %s' % exist_scenario_id)
+        self.cursor.execute('select intent from scenario_inputs where scenario = %s' % exist_scenario_id)
         inputs = self.cursor.fetchall()
 
         self.add_inputs_for_scenario(scenario_id, inputs)
